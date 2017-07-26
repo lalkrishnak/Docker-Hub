@@ -13,10 +13,10 @@ Keep in mind that Docker is not the first and not the only containerization plat
 ## Installation
 Docker can be easily install via packages provided in all major Linux distributions. 
 For Ubuntu-14.04 we run:
-*$ sudo sh -c "wget -qO- https://get.docker.io/gpg | apt-key add -"*
-*$ sudo sh -c "echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list"*
-*$ sudo aptitude update*
-*$ sudo aptitude install lxc-docker apparmor*
+*$ sudo sh -c "wget -qO- https://get.docker.io/gpg | apt-key add -"
+$ sudo sh -c "echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
+$ sudo aptitude update
+$ sudo aptitude install lxc-docker apparmor*
 
 To confirm successful installation:
 
