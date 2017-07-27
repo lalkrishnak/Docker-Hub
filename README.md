@@ -106,15 +106,7 @@ The building base for Docker images is a file so called Dockerfile. Here we spec
 
 We will create separate Docker image for each of our services like Tomcat, MongoDB, ElasticSearch etc. This means that to run a local Devtest environment on Docker one will need to run three containers and setup appropriate networking between them.
 
-### Elastic Search
-This is going to be our ElasticSearch Dockerfile:
-
-Here we specify everything related to the image starting from the Linux distribution and version, in this case we download and build on the official public Ubuntu-14.04 Docker image, Ansible integration, services to start when the image gets launched in a Docker container and the ports it will expose to the clients. Then we create two Ansible playbooks in the current working directory that will do all the installation and configuration job for us. 
-
-The main playbook elastic_search.yml:
-
-
-and the tasks playbook attached elastic_search_main_tasks.yml. We gonna drop in our cloned repository in the image and run them during creation. To start the build we simply run:
+To start the build we simply run:
 ```
 $ sudo docker build --rm -t lalkrishna/elastic_search .
 ```
@@ -127,49 +119,6 @@ ubuntu                     14.04               5506de2b643b        3 weeks ago  
 ```
 Apart our new image we also see the downloaded official Ubuntu image we based our build upon. We want to keep it so we don’t have to download it over and over again in the next builds. This is one nice feature that Docker caching provides.
 
-### MongoDB
-This is going to be our MongoDB Dockerfile:
-
-FROM ubuntu:14.04
-
-and the main playbook mongodb.yml:
-
-
-and the attached mongodb_main_tasks.yml playbook for the setup. Similar to the previous example we build our image:
-```
-$ sudo docker build --rm -t lalkrishna/mongodb .
-```
-But in this case we have some additional job to do. After starting a container with this initial image:
-```
-$ sudo docker run --name="MongoDB" --rm -t -i lalkrishna/mongodb
-```
-which will also log us in, we need to run the following inside the container:
-```
-$ /usr/bin/mongo /tmp/create-lalkrishna-db-and-users.js
-$ /usr/bin/mongo /tmp/create-audit-db-and-users.js
-$ for col in User Site SubscriptionType Account; do /usr/bin/mongorestore --port 27017 --db lalkrishna --username lalkrishna --password password --collection $col --drop /tmp/${col}.collection/lalkrishna/${col}.bson; done
-```
-to create our databases, users and collections. The files needed have been already placed under /tmp during our image creation by Ansible but couldn’t be ran since of course no services can be started inside the image it self at that point. Now we need to commit this container in order to create our final image:
-```
-$ sudo docker commit 8111c11050c5 lalkrishna/mongodb:latest
-```
-where 8111c11050c5 is the container id we find by running:
-```
-$ sudo docker ps
-```
-and finding the one named MongoDB. After we exit from this container, it will be automatically deleted since we have started it with the --rm switch.
-
-### Tomcat
-We follow the same procedure in this case too. We change the Dockerfile for tomcat configuration:
-
-
-the main playbook tomcat7.yml:
-
-
-and the attached tomcat7_main_tasks.yml file. We run the build command with only these three files in the current working directory to build the Tomcat image:
-```
-$ sudo docker build --rm -t lalkrishna/tomcat7 .
-```
 At the end we have our three images built and ready to be used:
 ```
 $ sudo docker images
